@@ -1,0 +1,30 @@
+name: Build plugin
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unzip project
+        run: unzip -q *.zip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+      - name: Install deps
+        working-directory: app_shortcuts
+        run: npm install --no-audit --no-fund
+      - name: Build .snplg
+        working-directory: app_shortcuts
+        run: |
+          chmod +x buildPlugin.sh android/gradlew
+          ./buildPlugin.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app_shortcuts
+          path: app_shortcuts/build/outputs/*.snplg
